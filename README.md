@@ -5,7 +5,7 @@ No setor de varejo e aplicativos de delivery, reter um cliente ativo é signific
 
 O **ToComFome** é um aplicativo de entrega de comida que identificou a necessidade de entender o perfil de risco dos seus usuários. A área de CRM demandou um projeto de **Data Analytics** para classificar clientes com probabilidade de abandonar a plataforma (Churn) nos próximos meses, permitindo o direcionamento inteligente de campanhas de marketing e retenção.
 
-Este projeto utiliza uma base de dados de 10.000 clientes (fornecida pela Preditiva Analytics) para realizar uma análise exploratória profunda e treinar um modelo de Machine Learning capaz de segmentar a base pelo risco de cancelamento.
+Este projeto utiliza uma base de dados de 10.000 clientes para realizar uma análise exploratória profunda e treinar um modelo de Machine Learning capaz de segmentar a base pelo risco de cancelamento.
 
 ---
 
@@ -25,38 +25,39 @@ Todo o pipeline de dados, desde a preparação até a modelagem preditiva, foi d
 
 ---
 
-## 📊 Metodologia
+## 📊 Metodologia e Decisões Técnicas
 
 **1. Definição da Variável Resposta (Target)**
 * Cruzamento da tabela de clientes com a tabela de transações.
 * **Regra de Negócio:** Clientes sem transações nos últimos 30 dias em relação à data de extração foram classificados como **Churn (1)**.
 
-**2. Análise Exploratória (EDA)**
+**2. Análise Exploratória (EDA) e Detecção de Viés**
 * Utilização de **Information Value (IV)** e **Correlação Linear** para ranquear o poder preditivo de cada característica do cliente.
-* **Principais Descobertas:** A idade e o limite de crédito possuem forte impacto no abandono. Por outro lado, a participação no **Programa de Fidelidade** atua como o principal fator de proteção contra o Churn.
+* ⚠️ **Decisão Crítica de Negócio (Tratamento de Overfitting):** Durante a análise, identifiquei que as variáveis `Idade` e `Qte_Categorias` apresentaram um IV suspeitamente alto (acima de 0.90). No contexto real de um aplicativo, a idade não define o cancelamento com tamanha exatidão. Para evitar o *Data Leakage* (Vazamento de Dados) e impedir que o modelo sofresse de *Overfitting* (Superajuste) focando em um viés da base didática, optei por excluir essas variáveis do treinamento.
+* **Foco no que é acionável:** O modelo foi treinado com foco em alavancas reais e sólidas de negócio: `Score_Credito`, `Limite_Credito_Mercado` e `Programa_Fidelidade`.
 
 **3. Modelagem Preditiva e Segmentação**
 * Treinamento de um algoritmo de Árvore de Decisão (`max_depth=4` para garantir interpretabilidade pelas áreas de negócio).
-* O modelo gerou uma probabilidade (0% a 100%) para cada usuário, permitindo a criação de três segmentos de risco.
+* O modelo otimizado gerou uma probabilidade (0% a 100%) realista para cada usuário, permitindo a criação de três segmentos de risco práticos.
 
 ---
 
 ## 💡 Resultados e Planos de Ação
 
-De uma base de 10.000 usuários, o modelo mapeou a seguinte distribuição de risco:
+Ao remover o viés estatístico da base, o modelo apresentou um funil de risco altamente focado e realista. De 10.000 usuários, mapeamos a seguinte distribuição:
 
 | Segmento de Risco | Volumetria | % da Base |
 | :--- | :--- | :--- |
-| 🟢 **Baixo Risco** (< 30%) | 7.997 clientes | ~80% |
-| 🟡 **Médio Risco** (30% a 69%) | 1.424 clientes | ~14,2% |
-| 🔴 **Alto Risco** (>= 70%) | 579 clientes | ~5,8% |
+| 🟢 **Baixo Risco** (< 30%) | 6.832 clientes | ~68,3% |
+| 🟡 **Médio Risco** (30% a 69%) | 3.134 clientes | ~31,3% |
+| 🔴 **Alto Risco** (>= 70%) | 34 clientes | ~0,3% |
 
 ### Estratégias de CRM Propostas:
-* **Para o Alto Risco (579 clientes):** Focar o orçamento de retenção exclusivamente neste grupo. Como possuem perfil de maior poder aquisitivo (alto limite de crédito), a sugestão é rodar uma campanha VIP oferecendo adesão gratuita ao Programa de Fidelidade (nosso maior protetor de churn) atrelada a um cupom de alto valor em restaurantes premium.
-* **Para o Médio Risco (1.424 clientes):** Fomentar a criação de novos hábitos. Campanhas de *cross-sell* via push notification incentivando compras em categorias diferentes das habituais (ex: se só compra hambúrguer, oferecer cupom para farmácia ou pizza).
-* **Para o Baixo Risco (7.997 clientes):** Manutenção da margem de lucro. Evitar o envio de descontos agressivos, focando apenas na excelência da experiência de entrega.
+* **🔴 Para o Alto Risco (34 clientes) - Retenção VIP:** Com um funil extremamente afunilado, a equipe de CRM não precisa queimar orçamento em massa. A recomendação é uma ação *premium* (quase artesanal), como o envio de cupons agressivos (ex: R$ 50 off) associados à entrada no Programa de Fidelidade, focando em reter esses usuários críticos de forma altamente personalizada.
+* **🟡 Para o Médio Risco (3.134 clientes) - Fomento de Hábito:** Este é o grande campo de batalha do app. A recomendação é implementar campanhas automatizadas de *cross-sell* via push notification e e-mail. O objetivo é incentivar compras em novas categorias para criar recorrência e fidelizar o cliente antes que ele migre para o grupo de risco iminente.
+* **🟢 Para o Baixo Risco (6.832 clientes) - Manutenção de Margem:** Sendo o maior grupo da empresa, o objetivo principal é evitar a queima de margem de lucro com descontos desnecessários. O foco de investimento aqui deve ser puramente na excelência operacional (tempo de entrega ágil e suporte eficiente).
 
 ---
 
 ## 📂 Como navegar neste repositório
-* A pasta principal contém o arquivo `.ipynb` com o código documentado passo a passo, detalhando toda a lógica matemática e de negócios aplicada.
+* A pasta principal contém o arquivo `.ipynb` com o código documentado passo a passo, detalhando toda a lógica matemática e as decisões de negócios aplicadas ao modelo.
