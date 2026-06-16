@@ -34,7 +34,10 @@ Todo o pipeline de dados, desde a preparação até a modelagem preditiva, foi d
 **2. Análise Exploratória (EDA) e Detecção de Viés**
 * Utilização de **Information Value (IV)** e **Correlação Linear** para ranquear o poder preditivo de cada característica do cliente.
 * ⚠️ **Decisão Crítica de Negócio (Tratamento de Overfitting):** Durante a análise, identifiquei que as variáveis `Idade` e `Qte_Categorias` apresentaram um IV suspeitamente alto (acima de 0.90). No contexto real de um aplicativo, a idade não define o cancelamento com tamanha exatidão. Para evitar o *Data Leakage* (Vazamento de Dados) e impedir que o modelo sofresse de *Overfitting* (Superajuste) focando em um viés da base didática, optei por excluir essas variáveis do treinamento.
-* **Foco no que é acionável:** O modelo foi treinado com foco em alavancas reais e sólidas de negócio: `Score_Credito`, `Limite_Credito_Mercado` e `Programa_Fidelidade`.
+* **Foco no que é acionável:** Após a limpeza do viés, identificamos os verdadeiros fatores de risco sólidos para o negócio, com destaque para o **Limite de Crédito no Mercado (IV: 0.46)**, seguido pelo **Score de Crédito (0.27)** e **Estado (0.17)**.
+
+<img width="2996" height="1581" alt="grafico_iv_fatores_risco" src="https://github.com/user-attachments/assets/3e34af7d-be11-47cc-950c-ddad9fd30294" />
+
 
 **3. Modelagem Preditiva e Segmentação**
 * Treinamento de um algoritmo de Árvore de Decisão (`max_depth=4` para garantir interpretabilidade pelas áreas de negócio).
@@ -51,6 +54,8 @@ Ao remover o viés estatístico da base, o modelo apresentou um funil de risco a
 | 🟢 **Baixo Risco** (< 30%) | 6.832 clientes | ~68,3% |
 | 🟡 **Médio Risco** (30% a 69%) | 3.134 clientes | ~31,3% |
 | 🔴 **Alto Risco** (>= 70%) | 34 clientes | ~0,3% |
+<img width="2140" height="1407" alt="grafico_distribuicao_risco_otimizado" src="https://github.com/user-attachments/assets/fed58ad6-5aa5-448f-9175-90ba44582094" />
+
 
 ### Estratégias de CRM Propostas:
 * **🔴 Para o Alto Risco (34 clientes) - Retenção VIP:** Com um funil extremamente afunilado, a equipe de CRM não precisa queimar orçamento em massa. A recomendação é uma ação *premium* (quase artesanal), como o envio de cupons agressivos (ex: R$ 50 off) associados à entrada no Programa de Fidelidade, focando em reter esses usuários críticos de forma altamente personalizada.
